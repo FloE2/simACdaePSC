@@ -63,6 +63,8 @@ h3{margin:16px 0 8px;font-size:1.05rem}
 .slide blockquote{margin:0;border-left:6px solid var(--accent);padding:.4em 0 .4em .8em;font-size:clamp(1.1rem,2.5vw,2rem);background:var(--accent-soft);border-radius:0 10px 10px 0}
 .roles{display:grid;grid-template-columns:repeat(2,1fr);gap:2.5%}
 .role{background:var(--surface2);border-radius:12px;padding:3%}
+.frag{visibility:hidden;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+.frag.shown{visibility:visible;opacity:1;transform:none}
 .role b{display:block;font-size:clamp(1rem,2.1vw,1.6rem)}
 .role span{font-size:clamp(.85rem,1.6vw,1.2rem);color:var(--muted)}
 .chain{display:flex;gap:3%;align-items:stretch;margin-top:.5em}
@@ -200,18 +202,18 @@ footer{max-width:1200px;margin:0 auto;padding:8px 16px 30px;color:var(--muted);f
       </ul>
     </div>
 
-    <div class="slide" data-notes="Lire LENTEMENT, une seule fois. Ne rien ajouter. Ne jamais dire « il ne respire pas », « arrêt cardiaque » ni « faites un massage ». Pendant la scène, donner les infos seulement quand le sauveteur les cherche : « Il ne répond pas, il ne réagit pas. » Respiration : « Tu vois de rares mouvements, lents et bruyants » (respiration anormale = arrêt cardiaque). Variante : retirer la phrase sur le défibrillateur pour voir si l'élève pense à le demander. AVANT DE PASSER À LA DIAPO 5 : désigner le sauveteur et le faire sortir de la salle.">
+    <div class="slide" data-notes="Lire LENTEMENT, une seule fois. Ne rien ajouter. Ne jamais dire « il ne respire pas », « arrêt cardiaque » ni « faites un massage ». Pendant la scène, donner les infos seulement quand le sauveteur les cherche : « Il ne répond pas, il ne réagit pas. » Respiration : « Tu vois de rares mouvements, lents et bruyants » (respiration anormale = arrêt cardiaque). Variante : retirer la phrase sur le défibrillateur pour voir si l'élève pense à le demander. Sur la diapo 5, les rôles apparaissent un par un : le sauveteur d'abord, pour le faire sortir avant d'afficher la suite.">
       <div class="kicker">La situation</div>
       <blockquote>Vous êtes au gymnase, à la fin du cours d'EPS. Votre professeur, un adulte d'une cinquantaine d'années, <b>s'effondre brutalement</b> devant vous. Un camarade est à côté de vous. Un défibrillateur est installé dans le hall d'entrée.<br><br><b>À vous d'agir jusqu'à l'arrivée des secours.</b></blockquote>
     </div>
 
-    <div class="slide" data-notes="LE SAUVETEUR EST DEHORS : cette diapo donne les réponses (les questions des observateurs). Désigner le camarade et lui donner sa consigne : « Tu ne fais QUE ce qu'on te demande. Si on t'envoie chercher le défibrillateur, tu reviens au bout d'environ 1 minute. » Donner à chaque observateur sa question (A, B, C ou D). Puis passer à la diapo 6 AVANT de faire rentrer le sauveteur.">
+    <div class="slide" data-notes="Les rôles apparaissent un par un, à chaque clic (ou flèche →). CLIC 1 : le sauveteur → le désigner et le faire SORTIR de la salle. CLIC 2 : le camarade → lui donner sa consigne : « Tu ne fais QUE ce qu'on te demande. Si on t'envoie chercher le défibrillateur, tu reviens au bout d'environ 1 minute. » CLIC 3 (sauveteur dehors uniquement !) : les observateurs → donner à chacun sa question A, B, C ou D. CLIC 4 : le formateur. Puis passer à la diapo 6 AVANT de faire rentrer le sauveteur.">
       <div class="kicker">Les rôles</div>
       <div class="roles">
-        <div class="role"><b>🧑‍⚕️ Le sauveteur</b><span>Il porte secours à la victime.</span></div>
-        <div class="role"><b>🧍 Le camarade</b><span>Il fait seulement ce que le sauveteur lui demande.</span></div>
-        <div class="role"><b>👀 Les observateurs</b><span>A · A-t-il vérifié qu'il ne répond pas et ne respire pas normalement ?<br>B · Qui a appelé les secours ? Comment ?<br>C · Comment a-t-il massé ?<br>D · Comment le défibrillateur a-t-il été utilisé ?</span></div>
-        <div class="role"><b>🎓 Le formateur</b><span>Donne les informations sur la victime, répond au téléphone comme les secours, observe.</span></div>
+        <div class="role frag"><b>🧑‍⚕️ Le sauveteur</b><span>Il porte secours à la victime.</span></div>
+        <div class="role frag"><b>🧍 Le camarade</b><span>Il fait seulement ce que le sauveteur lui demande.</span></div>
+        <div class="role frag"><b>👀 Les observateurs</b><span>A · A-t-il vérifié qu'il ne répond pas et ne respire pas normalement ?<br>B · Qui a appelé les secours ? Comment ?<br>C · Comment a-t-il massé ?<br>D · Comment le défibrillateur a-t-il été utilisé ?</span></div>
+        <div class="role frag"><b>🎓 Le formateur</b><span>Donne les informations sur la victime, répond au téléphone comme les secours, observe.</span></div>
       </div>
     </div>
 
@@ -517,15 +519,25 @@ footer{max-width:1200px;margin:0 auto;padding:8px 16px 30px;color:var(--muted);f
   let cur = 0, notesOn = true;
   const dots = $('#dots');
   slides.forEach((s,i) => { const b = document.createElement('button'); b.textContent = i+1; b.onclick = () => go(i); dots.appendChild(b); });
-  function go(i){
+  const frags = s => Array.from(s.querySelectorAll('.frag'));
+  function next(){
+    const hidden = frags(slides[cur]).filter(f => !f.classList.contains('shown'));
+    if (hidden.length) hidden[0].classList.add('shown'); else go(cur+1);
+  }
+  function prev(){
+    const shown = frags(slides[cur]).filter(f => f.classList.contains('shown'));
+    if (shown.length) shown[shown.length-1].classList.remove('shown'); else go(cur-1, true);
+  }
+  function go(i, back){
     cur = Math.max(0, Math.min(slides.length-1, i));
+    frags(slides[cur]).forEach(f => f.classList.toggle('shown', !!back));
     slides.forEach((s,k) => s.classList.toggle('active', k === cur));
     $$('#dots button').forEach((b,k) => b.classList.toggle('on', k === cur));
     $('#slideNum').textContent = (cur+1)+' / '+slides.length;
     $('#notesTxt').textContent = slides[cur].dataset.notes || '';
   }
-  $('#prevS').onclick = () => go(cur-1);
-  $('#nextS').onclick = () => go(cur+1);
+  $('#prevS').onclick = prev;
+  $('#nextS').onclick = next;
   $('#fsBtn').onclick = toggleFS;
   $('#notesBtn').onclick = () => { notesOn = !notesOn; $('#notesBox').style.display = notesOn ? '' : 'none'; };
   function toggleFS(){
@@ -535,7 +547,7 @@ footer{max-width:1200px;margin:0 auto;padding:8px 16px 30px;color:var(--muted);f
   }
   $('#slides').addEventListener('click', e => {
     if (e.target.closest('button')) return;
-    if (document.fullscreenElement) go(cur+1);
+    if (document.fullscreenElement) next();
   });
   go(0);
 
@@ -546,8 +558,8 @@ footer{max-width:1200px;margin:0 auto;padding:8px 16px 30px;color:var(--muted);f
       say:'« Aujourd\'hui, vous allez agir comme si c\'était vrai. À la fin, vous serez capables de porter secours à un adulte qui s\'effondre… »',
       todo:['Annoncer l\'objectif, le faire reformuler','Poser les règles : voix haute, pas de moquerie','Rassurer : on a le droit de se tromper'] },
     { s:90, e:210, name:'Préparation', color:'#4b6fa8', slides:'Diapos 4 → 5',
-      say:'Lire la situation lentement, une seule fois. Puis : « Qui veut être le sauveteur ? Tu sors un instant, je viens te chercher. » Diapo 5 : « Qui sera son camarade ? Les autres, vous avez chacun une question à surveiller. »',
-      todo:['Lire la situation SANS dire « arrêt cardiaque »','Désigner le sauveteur et le faire SORTIR avant la diapo 5','Désigner le camarade et lui donner sa consigne','Une question d\'observation par observateur','Passer à la diapo 6, puis faire rentrer le sauveteur'] },
+      say:'Lire la situation lentement, une seule fois. Puis : Diapo 5, clic 1 : « Qui veut être le sauveteur ? Tu sors un instant, je viens te chercher. » Clics suivants : « Qui sera son camarade ? Les autres, vous avez chacun une question à surveiller. »',
+      todo:['Lire la situation SANS dire « arrêt cardiaque »','Diapo 5, clic 1 : désigner le sauveteur et le faire SORTIR','Clic 3 (observateurs) seulement quand il est dehors','Désigner le camarade et lui donner sa consigne','Une question d\'observation par observateur','Passer à la diapo 6, puis faire rentrer le sauveteur'] },
     { s:210, e:510, name:'Simulation', color:'#c8102e', slides:'Diapo 6',
       say:'« À vous ! » Puis silence. Infos seulement si on les cherche : « Il ne répond pas, il ne réagit pas. » / « Tu vois de rares mouvements, lents et bruyants. »',
       todo:['Lancer le chrono de la scène','Noter en direct (chronologie + grille)','Répondre au téléphone comme les secours','N\'intervenir que pour débloquer ou pour la sécurité','Laisser au moins un choc + reprise du massage'] },
@@ -772,8 +784,8 @@ footer{max-width:1200px;margin:0 auto;padding:8px 16px 30px;color:var(--muted);f
   document.addEventListener('keydown', e => {
     if (e.target.matches('textarea,input')) return;
     const onSlides = $('#p-slides').classList.contains('active');
-    if (onSlides && (e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === ' ' && document.fullscreenElement))){ e.preventDefault(); go(cur+1); }
-    else if (onSlides && (e.key === 'ArrowLeft' || e.key === 'PageUp')){ e.preventDefault(); go(cur-1); }
+    if (onSlides && (e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === ' ' && document.fullscreenElement))){ e.preventDefault(); next(); }
+    else if (onSlides && (e.key === 'ArrowLeft' || e.key === 'PageUp')){ e.preventDefault(); prev(); }
     else if (e.key === 'f' || e.key === 'F'){ if (onSlides) toggleFS(); }
     else if (e.key === 'n' || e.key === 'N'){ $('#notesBtn').click(); }
     else if (e.key === ' ' && !onSlides){ e.preventDefault(); toggle(); }
